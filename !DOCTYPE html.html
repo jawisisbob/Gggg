@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JUICE DREAM - MLBB CRACKER</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: #44ff44;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            background: #1a1a1a;
+            border: 2px solid #44ff44;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(68, 255, 68, 0.7);
+        }
+        .hidden {
+            display: none;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background: #333;
+            color: #44ff44;
+        }
+        button {
+            background: #44ff44;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #00ff00;
+            transform: scale(1.05);
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            background: #2d2d2d;
+            border-radius: 10px;
+            color: #44ff44;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status p.warning {
+            color: #ff4444;
+            font-weight: bold;
+        }
+        .progress-bar-container {
+            width: 80%;
+            margin: 20px auto;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #44ff44;
+            transition: width 0.2s linear;
+        }
+        .spinner {
+            border: 4px solid #333;
+            border-top: 4px solid #44ff44;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JUICE DREAM</h1>
+
+        <!-- Login Section -->
+        <div id="login-section">
+            <h3>🔑 Enter Your Access Key</h3>
+            <input type="text" id="key-input" placeholder="Enter your key here...">
+            <button onclick="validateKey()">Unlock</button>
+            <p>Don't have a key? <button onclick="window.location.href='https://t.me/nomorenomore4u'">Buy Key</button></p>
+        </div>
+
+        <!-- Scanner Section -->
+        <div id="scanner-section" class="hidden">
+            <div class="timer" id="timer"></div>
+            <button class="start-btn" onclick="startCracking()">START CRACKING ACCOUNT NOW</button>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div id="output" class="status"></div>
+            <div class="spinner" id="spinner"></div>
+        </div>
+    </div>
+
+    <audio id="cracking-sound" src="https://cdn.pixabay.com/audio/2022/02/01/audio_3c4d5e6f7g.mp3" preload="auto"></audio>
+    <audio id="success-sound" src="https://cdn.pixabay.com/audio/2022/02/01/audio_8a9b0c1d2e.mp3" preload="auto"></audio>
+    <audio id="warning-sound" src="https://cdn.pixabay.com/audio/2022/02/01/audio_9b0c1d2e3f.mp3" preload="auto"></audio>
+
+    <script>
+        // YOUR 60 VALID KEYS (case-sensitive)
+        const validCodes = [
+            '8X8963SR', 'NU4MLLZK', 'V7HU64QZ', 'JYP84W9X', '4MC3HA96', '28B27VD4', 'NCQAJNP9', 'M992BMKJ', 'B7VSRPTP', 'GN6MNL32',
+            'W5745B6L', 'JPLS5AS5', 'RB8JPEU6', '5NUS35TJ', '8P7YG3GJ', '4BU9J78M', 'Q5GBLNTE', 'UMQ7U8B5', 'QTGJXG3F', 'QH3AEUP3',
+            '4XNJGSE5', 'BV4YXA4G', '5JNSJAZ9', '2M59ASJS', '9BKSJVX4', 'XF8CZTUS', 'UTWVE7VY', 'JQNF9MMD', 'EN9BJN3X', 'G37S6UVP',
+            '49CB238V', '5MTK9NNJ', 'JN6EWEMP', 'YKVA73HK', 'TQXXGQ2U', '9GXCBUMQ', '4G7VDT7M', 'SZ9QSD4C', 'Z7ENK2XJ', '8N9V9RQP',
+            'XL3DJVWK', 'D7ARK2AG', 'NWZU63WF', 'DRKRB6MT', 'GU5PDTEM', '64RXV9AA', 'F2NLC98C', '4UCLTQH5', '68L5QBZ4', '58APZMCD',
+            'RSJ53B5M', 'QK689GX7', 'JJ9GQTCP', 'K28XKPWW', 'WR6YGRW9', 'X7PZ66P3', 'J2W2EVMS', 'DCJBS7NM', 'MG62EWP4', 'X7MSVE8T',
+            'ACD64M8X', 'F6ZEZ3DE', '25CKJWPY', 'ZEVSTJ5L', 'DM94KPBQ', 'KXN66D77', 'DAL277LM', 'MFMLA4MX', 'HJYLJTH8', 'FG96QPHQ',
+            'E8CCPCRB', '5HCYU9R7', '7CX9PLP3', 'BT5TXSP5', 'JKGC87PW', '64RX59HF', 'BNDL8N7P', 'DWKNGRE4', 'WG3VXC65', 'RU8QD8V2',
+            'P7ZLKXPF', 'V4JGWCJL', 'FM32AKEF', 'GMYYP4E8', 'GKLE2HW8', 'A3PY8NFG', '2LFD8QYB', 'VEDAT48Y', 'BH8JXLBM', '53VSJ9PJ',
+            'QKZVJ4EA', '77KLCCUV', '325EE5LR', 'M5SWYEZF', 'TCJDN62R', 'K89946U4', 'M5JBRDCK', 'UZJWYE9G', 'F5QNXSQN', 'WXW2PDGD'
+        ];
+
+        // Track redeemed codes and expiration time
+        let redeemedCodes = JSON.parse(localStorage.getItem('redeemedCodes')) || [];
+        let expirationTime = localStorage.getItem('expirationTime') || null;
+
+        // Check access on page load
+        window.onload = () => {
+            if (expirationTime && new Date().getTime() < expirationTime) {
+                showScanner();
+                startTimer();
+            }
+        };
+
+        function validateKey() {
+            const inputCode = document.getElementById('key-input').value.trim();
+            if (!inputCode) {
+                alert("❌ Please enter a key!");
+                return;
+            }
+
+            // Check if code is valid and not redeemed
+            if (validCodes.includes(inputCode)) {
+                if (redeemedCodes.includes(inputCode)) {
+                    alert("❌ This key has already been used!");
+                    return;
+                }
+                // Mark code as redeemed and grant 30-day access
+                redeemedCodes.push(inputCode);
+                localStorage.setItem('redeemedCodes', JSON.stringify(redeemedCodes));
+                expirationTime = new Date().getTime() + 30 * 24 * 60 * 60 * 1000;
+                localStorage.setItem('expirationTime', expirationTime);
+
+                // Unlock scanner
+                alert("✅ Key Validated! Unlocking Scanner...");
+                showScanner();
+            } else {
+                alert("❌ Invalid Key! Please try again or purchase a key.");
+            }
+        }
+
+        function showScanner() {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('scanner-section').classList.remove('hidden');
+            startTimer();
+        }
+
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            const updateTimer = () => {
+                const remainingTime = expirationTime - new Date().getTime();
+                if (remainingTime <= 0) {
+                    timerElement.textContent = "⏳ Access Expired!";
+                    setTimeout(() => {
+                        localStorage.removeItem('expirationTime'); // Clear session but keep redeemed codes
+                        document.getElementById('scanner-section').classList.add('hidden');
+                        document.getElementById('login-section').classList.remove('hidden');
+                        document.getElementById('output').innerHTML = '';
+                    }, 3000);
+                    return;
+                }
+                const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+                timerElement.textContent = `⏰ Time Left: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+            };
+            setInterval(updateTimer, 1000);
+            updateTimer();
+        }
+
+        let isCooldownActive = false;
+
+        function startCracking() {
+            if (isCooldownActive) {
+                alert("⏳ Process running. Wait!");
+                return;
+            }
+
+            isCooldownActive = true;
+            const crackButton = document.querySelector('.start-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const outputDiv = document.getElementById('output');
+            const spinner = document.getElementById('spinner');
+
+            outputDiv.innerHTML = '';
+            progressBar.style.width = '0%';
+            crackButton.disabled = true;
+            crackButton.textContent = "PROCESSING...";
+            crackButton.style.backgroundColor = "#ff4444";
+            spinner.style.display = 'block';
+
+            // Pre-generate fake account details
+            const mlbbHeroes = ["Lancelot", "Karina", "Gusion"];
+            const domains = ["gmail.com", "yahoo.com"];
+            const email = `${mlbbHeroes[Math.floor(Math.random() * mlbbHeroes.length)]}_${Math.random().toString(36).slice(2,5)}${Math.floor(Math.random() * 1000)}@${domains[Math.floor(Math.random() * domains.length)]}`;
+            const password = `${mlbbHeroes[Math.floor(Math.random() * mlbbHeroes.length)]}@${Math.floor(Math.random() * 10000)}`;
+            const status = Math.random() > 0.5 ? "Active" : "Inactive";
+            const level = Math.floor(Math.random() * 100) + 1;
+
+            // Simulate 1-minute cracking process (6 phases × 10 seconds)
+            const phases = [
+                { message: "⚠️ ACCOUNT HAVE NOT VERIFIED YET" },
+                { message: "🔍 Connecting to server..." },
+                { message: "🔑 Bypassing security layers..." },
+                { message: "🌐 Collecting metadata..." },
+                { message: "🔒 Decrypting credentials..." },
+                { message: "🔥 Finalizing access..." }
+            ];
+
+            // Progress bar and phases
+            let progress = 0;
+            const totalDuration = 60;
+            const phaseInterval = totalDuration / phases.length;
+
+            // Update progress bar every second
+            const progressInterval = setInterval(() => {
+                progress += (100 / totalDuration);
+                progressBar.style.width = `${progress}%`;
+            }, 1000);
+
+            // Display phases one by one
+            phases.forEach((phase, index) => {
+                setTimeout(() => {
+                    if (phase.message.startsWith('⚠️')) {
+                        outputDiv.innerHTML += `<p class="warning">${phase.message}</p>`;
+                        document.getElementById('warning-sound').play();
+                    } else {
+                        outputDiv.innerHTML += `<p>${phase.message}</p>`;
+                    }
+                    if (index === phases.length - 1) {
+                        setTimeout(() => {
+                            outputDiv.innerHTML += `
+                                <div>
+                                    <p>Email: ${email} <button class="copy-btn" onclick="copyToClipboard('${email}')">COPY</button></p>
+                                    <p>Password: ${password} <button class="copy-btn" onclick="copyToClipboard('${password}')">COPY</button></p>
+                                    <p>Status: ${status}</p>
+                                    <p>Level: ${level}</p>
+                                </div>
+                            `;
+                            spinner.style.display = 'none';
+                            crackButton.textContent = "START CRACKING ACCOUNT NOW";
+                            crackButton.disabled = false;
+                            crackButton.style.backgroundColor = "#44ff44";
+                            document.getElementById('success-sound').play();
+                            isCooldownActive = false;
+                        }, 1000);
+                    }
+                }, index * phaseInterval * 1000);
+            });
+
+            // Stop progress bar after 60 seconds
+            setTimeout(() => {
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+            }, totalDuration * 1000);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert(`✅ Copied: ${text}`);
+            });
+        }
+    </script>
+</body>
+</html>
